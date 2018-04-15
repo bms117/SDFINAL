@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="SignInButton"><attr format="string" name="text"/><attr format="enum" name="button_style">
+             <enum name="large" value="0"/>
+             <enum name="small" value="1"/>
+         </attr></declare-styleable>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <string name="app_name">S3TransferUtility</string>
@@ -16,6 +20,7 @@
     <string name="please_wait">Please wait</string>
     <string name="refreshing">Refreshing</string>
     <string name="resume">Resume</string>
+    <string name="sign_in_failure_message_format">Sign-in with %1$s failed.\n%2$s</string>
     <string name="upload">Upload</string>
     <string name="upload_activity">UploadActivity</string>
     <string name="upload_file">Upload a file</string>

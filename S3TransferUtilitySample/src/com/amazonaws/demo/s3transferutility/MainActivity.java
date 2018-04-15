@@ -31,6 +31,10 @@ import android.widget.Button;
 import com.amazonaws.demo.s3transferutility.R;
 import com.amazonaws.http.HttpClient;
 import com.amazonaws.http.HttpResponse;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -70,6 +74,8 @@ import android.widget.Toast;
 
 import static android.content.ContentValues.TAG;
 import static com.amazonaws.demo.s3transferutility.Constants.FileName;
+import static com.amazonaws.demo.s3transferutility.Constants.FileNameBeacon;
+import static com.amazonaws.demo.s3transferutility.Constants.identity;
 
 
 /*
@@ -123,6 +129,9 @@ public class MainActivity extends Activity {
         mainWifi.startScan();
         mainText.setText("Starting Scan...");
 
+        //rand num identifier
+
+
         // repeats wifi scans
         task.run();
 
@@ -139,8 +148,13 @@ public class MainActivity extends Activity {
             WifiReceiver wr = new WifiReceiver();
             wr.onReceive(myContext, myIntent);
 
+            // Upload
+            //uploadWithTransferUtility();
+
+            // scan wifi again
             mainWifi.startScan();
 
+            // delay
             handler.postDelayed(task, 6000);
             onPause();
             onResume();
@@ -166,30 +180,6 @@ public class MainActivity extends Activity {
                 startActivity(intent);
             }
         });
-    }
-
-    // gets time stamp
-    public String getTimeStamp() {
-        long millis = System.currentTimeMillis();
-
-        long days = TimeUnit.MILLISECONDS.toDays(millis);
-        millis -= TimeUnit.DAYS.toMillis(days);
-        long hours = TimeUnit.MILLISECONDS.toHours(millis);
-        millis -= TimeUnit.HOURS.toMillis(hours);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-        millis -= TimeUnit.MINUTES.toMillis(minutes);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-
-        StringBuilder sb = new StringBuilder(64);
-        sb.append(hours);
-        sb.append(".");
-        sb.append(minutes);
-        sb.append(".");
-        sb.append(seconds);
-        sb.append(".");
-        sb.append(millis);
-
-        return (sb.toString());
     }
 
     //start timer function
@@ -245,10 +235,9 @@ public class MainActivity extends Activity {
                 sb.append("TIMESTAMP  " + mTimestamp);
                 sb.append("\n\n");
 
-                text = textBodyConstructor();
-                writeToSD(text);
+                //writes to aws
+                textBodyConstructor();
             }
-
             mainText.setText(sb);
         }
 
@@ -270,47 +259,52 @@ public class MainActivity extends Activity {
         super.onResume();
     }
 
-    public String textBodyConstructor() {
+    public void textBodyConstructor() {
         int tempSSID = -1;
+        int tempLevel = -2;
+        long tempTimestamp = -3;
+        String Body;
         switch (mSSID) {
             case "SSNT-01-5G":
                 tempSSID = 01;
+                tempLevel = signalLevel;
+                Body = identity + "\n" +  tempSSID + "\n" + tempLevel + "\n\n";
+                writeToSD(Body);
                 break;
             case "SSNT-02-5G":
                 tempSSID = 02;
+                tempLevel = signalLevel;
+                Body = identity + "\n" + tempSSID + "\n" + tempLevel + "\n\n";
+                writeToSD(Body);
                 break;
             case "SSNT-03-5G":
                 tempSSID = 03;
+                tempLevel = signalLevel;
+                Body = identity + "\n" + tempSSID + "\n" + tempLevel + "\n\n";
+                writeToSD(Body);
                 break;
             case "SSNT-04-5G":
                 tempSSID = 04;
+                tempLevel = signalLevel;
+                Body = identity + "\n" +  tempSSID + "\n" + tempLevel + "\n\n";
+                writeToSD(Body);
                 break;
             case "Beacon":
+                //needs to write to it's own text file
                 tempSSID = 00;
+                tempLevel = signalLevel;
+                tempTimestamp = mTimestamp;
+                Body = identity + "\n" + tempSSID + "\n" + tempLevel + "\n" + tempTimestamp  + "\n\n";
+                writeToSDBEACON(Body);
+                break;
             default:
                 // do nothing
+                Body = "";
+                writeToSD("");
+                writeToSDBEACON("");
                 break;
         }
-        String Body = tempSSID + "\n" + signalLevel + "\n" + mTimestamp  + "\n\n";
-        return Body;
     }
-
-//    public void Write() {
-//        // add-write text into file
-//        try {
-//            FileOutputStream fileout = openFileOutput(FileName, MODE_PRIVATE);
-//            OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-//            outputWriter.write("this is a test");
-//            outputWriter.close();
-//
-//            //display file saved message
-//            Toast.makeText(getBaseContext(), "File saved successfully!",
-//                    Toast.LENGTH_SHORT).show();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public Boolean writeToSD(String text){
 
@@ -325,7 +319,7 @@ public class MainActivity extends Activity {
             File fileDir = new File(root.getAbsolutePath());
             fileDir.mkdirs();
 
-            File file = new File(fileDir, "TEST5.txt");
+            File file = new File(fileDir, FileName);
             try {
                 FileOutputStream fileinput = new FileOutputStream(file, true);
                 PrintStream printstream = new PrintStream(fileinput);
@@ -338,6 +332,51 @@ public class MainActivity extends Activity {
             }
         }
         return write_successful;
+    }
+
+    public Boolean writeToSDBEACON(String text){
+
+        Boolean write_successful = false;
+        File root=null;
+        // <span id="IL_AD8" class="IL_AD">check for</span> SDcard
+        root = Environment.getExternalStorageDirectory();
+        Log.i(TAG,"path.." +root.getAbsolutePath());
+
+        //check sdcard permission
+        if (root.canWrite()) {
+            File fileDir = new File(root.getAbsolutePath());
+            fileDir.mkdirs();
+
+            File file = new File(fileDir, FileNameBeacon);
+            try {
+                FileOutputStream fileinput = new FileOutputStream(file, true);
+                PrintStream printstream = new PrintStream(fileinput);
+                printstream.print(text);
+                fileinput.close();
+
+            }
+            catch (Exception e) {
+                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        return write_successful;
+    }
+
+    public void uploadWithTransferUtility() {
+
+        TransferUtility transferUtility =
+                TransferUtility.builder()
+                        .context(getApplicationContext())
+                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
+                        .build();
+
+        TransferObserver uploadObserver =
+                transferUtility.upload(
+                        "https://s3.console.aws.amazon.com/s3/" + FileName,
+                        new File(getExternalFilesDir(null) + "/" + FileName));
+
+
     }
 
 }

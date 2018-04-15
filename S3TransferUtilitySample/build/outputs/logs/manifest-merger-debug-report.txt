@@ -3,6 +3,8 @@ manifest
 ADDED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:1:1-46:12
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:1:1-46:12
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:1:1-46:12
+MERGED from [com.amazonaws:aws-android-sdk-mobile-client:2.6.18] /Users/brian/.gradle/caches/transforms-1/files-1.1/aws-android-sdk-mobile-client-2.6.18.aar/30fd63fcf6ffff13ce6ad113642e2bc6/AndroidManifest.xml:2:1-6:12
+MERGED from [com.amazonaws:aws-android-sdk-auth-core:2.6.18] /Users/brian/.gradle/caches/transforms-1/files-1.1/aws-android-sdk-auth-core-2.6.18.aar/8bc93d6de3ac3266b0f3f1a53e411d34/AndroidManifest.xml:2:1-4:80
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:1:1-46:12
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:1:1-46:12
 	package
@@ -21,6 +23,10 @@ uses-sdk
 ADDED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:6:5-8:41
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:6:5-8:41
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:6:5-8:41
+MERGED from [com.amazonaws:aws-android-sdk-mobile-client:2.6.18] /Users/brian/.gradle/caches/transforms-1/files-1.1/aws-android-sdk-mobile-client-2.6.18.aar/30fd63fcf6ffff13ce6ad113642e2bc6/AndroidManifest.xml:4:5-73
+MERGED from [com.amazonaws:aws-android-sdk-mobile-client:2.6.18] /Users/brian/.gradle/caches/transforms-1/files-1.1/aws-android-sdk-mobile-client-2.6.18.aar/30fd63fcf6ffff13ce6ad113642e2bc6/AndroidManifest.xml:4:5-73
+MERGED from [com.amazonaws:aws-android-sdk-auth-core:2.6.18] /Users/brian/.gradle/caches/transforms-1/files-1.1/aws-android-sdk-auth-core-2.6.18.aar/8bc93d6de3ac3266b0f3f1a53e411d34/AndroidManifest.xml:4:1-69
+MERGED from [com.amazonaws:aws-android-sdk-auth-core:2.6.18] /Users/brian/.gradle/caches/transforms-1/files-1.1/aws-android-sdk-auth-core-2.6.18.aar/8bc93d6de3ac3266b0f3f1a53e411d34/AndroidManifest.xml:4:1-69
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:6:5-8:41
 INJECTED from /Users/brian/Documents/GitHub/SDFINAL/S3TransferUtilitySample/AndroidManifest.xml:6:5-8:41
 	android:targetSdkVersion

@@ -15,6 +15,8 @@
 
 package com.amazonaws.demo.s3transferutility;
 
+import java.io.File;
+
 public class Constants {
 
     /*
@@ -41,9 +43,9 @@ public class Constants {
     public static final String BUCKET_REGION = "us-east-2";
 
     //filename
-    public static final String FileName = "autoUploadTest.txt";
-    public static final String FileNameBeacon = "BeaconOnly.txt";
+    public static final String FileName = "autouploadingtest.txt";
+    public static final String FileNameBeacon = "TODDbeacon.txt";
 
     //  PHONE IDENTIFIER (CHANGE THIS WHEN DOWNLOADING APP ONTO PHONES)
-    public static final int identity = 0;
+    public static final String identity = "0";
 }

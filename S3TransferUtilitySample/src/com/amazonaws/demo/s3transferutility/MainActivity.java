@@ -42,7 +42,9 @@ import com.amazonaws.http.HttpClient;
 import com.amazonaws.http.HttpResponse;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -85,8 +87,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import static android.content.ContentValues.TAG;
-import static com.amazonaws.demo.s3transferutility.Constants.FileName;
 import static com.amazonaws.demo.s3transferutility.Constants.FileNameBeacon;
+import static com.amazonaws.demo.s3transferutility.Constants.FileNameNode;
 import static com.amazonaws.demo.s3transferutility.Constants.identity;
 import static com.amazonaws.demo.s3transferutility.UploadActivity.isDownloadsDocument;
 import static com.amazonaws.demo.s3transferutility.UploadActivity.isExternalStorageDocument;
@@ -118,18 +120,16 @@ public class MainActivity extends Activity {
     int signalLevel;
     String mSSID;
     long mTimestamp;
-    int LEVELglobal1 = -50;
-    int LEVELglobal2 = -50;
-    int LEVELglobal3 = -50;
-    int LEVELglobal4 = -50;
     String Body1 = "-50\n";
     String Body2 = "-50\n";
     String Body3 = "-50\n";
     String Body4 = "-50\n";
+    String BodyBeacon = "-50\n";
 
     //initial file path
     String filePath = "";
-    File file = new File("storage/emulated/0/" + FileName);
+    File fileNode = null;
+    File fileBeacon = null;
 
 
     private Util util;
@@ -146,7 +146,8 @@ public class MainActivity extends Activity {
         initUI();
         setTransferUtility();
 
-        file = new File("storage/emulated/0/" + FileName);
+        fileNode = new File("storage/emulated/0/" + Constants.FileNameNode);
+        fileBeacon = new File("storage/emulated/0/" + Constants.FileNameBeacon);
 
         mainText = (TextView) findViewById(R.id.tv1);
         mainWifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -163,7 +164,7 @@ public class MainActivity extends Activity {
         mainWifi.startScan();
         mainText.setText("Starting Scan...");
 
-
+        //TransferObserver transferObserver= uploadFileToS3(file);
         // repeats wifi scans
         task.run();
 
@@ -179,27 +180,47 @@ public class MainActivity extends Activity {
             WifiReceiver wr = new WifiReceiver();
             wr.onReceive(myContext, myIntent);
 
-            // Upload
-            uploadFileToS3();
-
             // scan wifi again
             mainWifi.startScan();
 
             // delay
             handler.postDelayed(task, 6000);
-
             onResume();
         }
     };
 
-    public void uploadFileToS3(){
-
-        TransferObserver transferObserver = transferUtility.upload(
-                Constants.BUCKET_NAME,          /* The bucket to upload to */
-                Constants.FileName,/* The key for the uploaded object */
-                file      /* The file where the data to upload exists */
-        );
-    }
+//    public void uploadFileToS3(File f){
+//        AWSMobileClient.getInstance().initialize(this).execute();
+//
+////        TransferListener transferListener = new TransferListener() {
+////            @Override
+////            public void onStateChanged(int id, TransferState state) {
+////
+////            }
+////
+////            @Override
+////            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+////
+////            }
+////
+////            @Override
+////            public void onError(int id, Exception ex) {
+////
+////            }
+////        };
+//
+//        TransferObserver transferObserver = transferUtility.upload(
+//                Constants.BUCKET_NAME,          /* The bucket to upload to */
+//                Constants.FileName,/* The key for the uploaded object */
+//                f      /* The file where the data to upload exists */
+//        );
+//
+////        if (TransferState.COMPLETED == transferObserver.getState()) {
+////            // Handle a completed upload.
+////            uploadFileToS3(file);
+////        }
+//        //transferObserver.refresh();
+//    }
 
     public void setTransferUtility(){
         util = new Util();
@@ -265,7 +286,6 @@ public class MainActivity extends Activity {
             wifiList = mainWifi.getScanResults();
             sb.append("\n        Number Of Wifi connections :"+wifiList.size()+"\n\n");
 
-            writeToSDBEACON(identity + "\n");
             writeToSD(identity + "\n");
 
             for(ScanResult result : wifiList) {
@@ -283,6 +303,17 @@ public class MainActivity extends Activity {
                 textBodyConstructor2(mSSID, signalLevel, mTimestamp);
             }
             writeToSD(Body1+Body2+Body3+Body4);
+            //writeToSDBEACON(Constants. identity + "\n" + BodyBeacon + mTimestamp);
+            TransferObserver transferObserverNode = transferUtility.upload(
+                    Constants.BUCKET_NAME,          /* The bucket to upload to */
+                    Constants.FileNameNode,/* The key for the uploaded object */
+                    fileNode      /* The file where the data to upload exists */
+            );
+            TransferObserver transferObserverBeacon = transferUtility.upload(
+                    Constants.BUCKET_NAME,          /* The bucket to upload to */
+                    Constants.FileNameBeacon,/* The key for the uploaded object */
+                    fileBeacon      /* The file where the data to upload exists */
+            );
             mainText.setText(sb);
         }
 
@@ -300,51 +331,11 @@ public class MainActivity extends Activity {
     }
 
     protected void onResume() {
-        registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        super.onResume();
-    }
 
-    public void textBodyConstructor(String SSID, int lvl, long ts) {
-        String tempSSID = SSID;
-        int tempLevel = lvl;
-        long tempTimestamp = ts;
-        String Body = "";
-        String Bodyb;
-        switch (mSSID) {
-            case "SSNT-01-5G":
-                tempLevel = signalLevel;
-                Body = tempLevel + "\n";
-                writeToSD(Body);
-                break;
-            case "SSNT-02-5G":
-                tempLevel = signalLevel;
-                Body = tempLevel + "\n";
-                writeToSD(Body);
-                break;
-            case "SSNT-03-5G":
-                tempLevel = signalLevel;
-                Body = tempLevel + "\n";
-                writeToSD(Body);
-                break;
-            case "SSNT-04-5G":
-                tempLevel = signalLevel;
-                Body = tempLevel + "\n";
-                writeToSD(Body);
-                break;
-            case "Beacon":
-                //needs to write to it's own text file
-                tempLevel = signalLevel;
-                tempTimestamp = mTimestamp;
-                Body = tempLevel + "\n" + tempTimestamp  + "\n";
-                writeToSDBEACON(Body);
-                break;
-            default:
-                // do nothing
-                Body = "";
-                writeToSD("");
-                writeToSDBEACON("");
-                break;
-        }
+
+        registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        super.onResume();
     }
 
     public void textBodyConstructor2(String SSID, int lvl, long ts) {
@@ -357,29 +348,33 @@ public class MainActivity extends Activity {
             case "SSNT-01-5G":
                 tempLevel = signalLevel;
                 Body1 = tempLevel + "\n";
-                writeToSD(Body);
                 break;
             case "SSNT-02-5G":
                 tempLevel = signalLevel;
                 Body2 = tempLevel + "\n";
-                writeToSD(Body);
                 break;
             case "SSNT-03-5G":
                 tempLevel = signalLevel;
                 Body3 = tempLevel + "\n";
-                writeToSD(Body);
                 break;
             case "SSNT-04-5G":
                 tempLevel = signalLevel;
                 Body4 = tempLevel + "\n";
-                writeToSD(Body);
                 break;
-            case "Beacon":
+            case "Roo-Secure":
                 //needs to write to it's own text file
                 tempLevel = signalLevel;
                 tempTimestamp = mTimestamp;
-                Body = tempLevel + "\n" + tempTimestamp  + "\n";
-                writeToSDBEACON(Body);
+//                String thetime = String.format("%d" + "\n" + "%d",
+//                        TimeUnit.MILLISECONDS.toMinutes(tempTimestamp),
+//                        TimeUnit.MILLISECONDS.toSeconds(tempTimestamp) -
+//                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(tempTimestamp)
+//                ));
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(tempTimestamp);
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(tempTimestamp) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(tempTimestamp));
+                String finalTime = minutes + "\n" + seconds + "\n" + tempTimestamp;
+                BodyBeacon = tempLevel + "\n" + finalTime + "\n";
+                writeToSDBEACON(Constants.identity + "\n" + BodyBeacon);
                 break;
             default:
                 // do nothing
@@ -390,17 +385,6 @@ public class MainActivity extends Activity {
         }
 
     }
-
-//    public void buildFileInput(String SSID, int lvl, long ts) {
-//        String Body = "";
-//        if(SSID == "SSNT-01-5G" || SSID == "SSNT-02-5G" || SSID == "SSNT-03-5G" || SSID == "SSNT-04-5G") {
-//            Body = "" +lvl;
-//            writeToSD("");
-//            writeToSDBEACON("");
-//        } else {
-//
-//        }
-//    }
 
     public Boolean writeToSD(String text){
 
@@ -415,7 +399,7 @@ public class MainActivity extends Activity {
             File fileDir = new File(root.getAbsolutePath());
             fileDir.mkdirs();
 
-            File file = new File(fileDir, FileName);
+            File file = new File(fileDir, FileNameNode);
             try {
                 FileOutputStream fileinput = new FileOutputStream(file, true);
                 PrintStream printstream = new PrintStream(fileinput);
@@ -504,14 +488,6 @@ public class MainActivity extends Activity {
         File file = new File(filePath);
         TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, file.getName(),
                 file);
-        /*
-         * Note that usually we set the transfer listener after initializing the
-         * transfer. However it isn't required in this sample app. The flow is
-         * click upload button -> start an activity for image selection
-         * startActivityForResult -> onActivityResult -> beginUpload -> onResume
-         * -> set listeners to in progress transfers.
-         */
-        // observer.setTransferListener(new UploadListener());
     }
 
     @SuppressLint("NewApi")
@@ -566,7 +542,6 @@ public class MainActivity extends Activity {
         }
         return null;
     }
-
 }
 
 

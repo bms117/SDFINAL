@@ -54,8 +54,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.amazonaws.demo.s3transferutility.Constants.FileName;
-
 /**
  * UploadActivity is a ListActivity of uploading, and uploaded records as well
  * as buttons for managing the uploads and creating new ones.
@@ -544,6 +542,8 @@ public class UploadActivity extends ListActivity {
         public void onStateChanged(int id, TransferState newState) {
             Log.d(TAG, "onStateChanged: " + id + ", " + newState);
             updateList();
+
+
         }
     }
 }

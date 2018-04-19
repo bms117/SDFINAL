@@ -60,6 +60,7 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -361,18 +362,11 @@ public class MainActivity extends Activity {
                 tempLevel = signalLevel;
                 Body4 = tempLevel + "\n";
                 break;
-            case "Roo-Secure":
+            case "Beacon":
                 //needs to write to it's own text file
                 tempLevel = signalLevel;
                 tempTimestamp = mTimestamp;
-//                String thetime = String.format("%d" + "\n" + "%d",
-//                        TimeUnit.MILLISECONDS.toMinutes(tempTimestamp),
-//                        TimeUnit.MILLISECONDS.toSeconds(tempTimestamp) -
-//                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(tempTimestamp)
-//                ));
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(tempTimestamp);
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(tempTimestamp) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(tempTimestamp));
-                String finalTime = minutes + "\n" + seconds + "\n" + tempTimestamp;
+                String finalTime = getTimeStamp();
                 BodyBeacon = tempLevel + "\n" + finalTime + "\n";
                 writeToSDBEACON(Constants.identity + "\n" + BodyBeacon);
                 break;
@@ -441,23 +435,6 @@ public class MainActivity extends Activity {
         }
         return write_successful;
     }
-
-//    public void uploadWithTransferUtility() {
-//
-//        TransferUtility transferUtility =
-//                TransferUtility.builder()
-//                        .context(getApplicationContext())
-//                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-//                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
-//                        .build();
-//
-//        TransferObserver uploadObserver =
-//                transferUtility.upload(
-//                        "https://s3.console.aws.amazon.com/s3/" + FileName,
-//                        new File(getExternalFilesDir(null) + "/" + FileName));
-//
-//
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -541,6 +518,37 @@ public class MainActivity extends Activity {
             return uri.getPath();
         }
         return null;
+    }
+
+    public String getTimeStamp() {
+        long millis = System.currentTimeMillis();
+        Calendar c= Calendar.getInstance();
+        c.setTimeInMillis(millis);
+
+//        long days = TimeUnit.MILLISECONDS.toDays(millis);
+//        millis -= TimeUnit.DAYS.toMillis(days);
+//        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+//        millis -= TimeUnit.HOURS.toMillis(hours);
+//        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+//        millis -= TimeUnit.MINUTES.toMillis(minutes);
+//        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+        int hours2=c.get(Calendar.HOUR);
+        int minutes2=c.get(Calendar.MINUTE);
+        int seconds2 =c.get(Calendar.SECOND);
+        int millis2=c.get(Calendar.MILLISECOND);
+
+
+        StringBuilder sb = new StringBuilder(64);
+        sb.append(hours2);
+        sb.append("\n");
+        sb.append(minutes2);
+        sb.append("\n");
+        sb.append(seconds2);
+        sb.append("\n");
+        sb.append(millis2);
+
+        return (sb.toString());
     }
 }
 

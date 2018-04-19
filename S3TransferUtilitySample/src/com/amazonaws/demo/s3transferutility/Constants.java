@@ -43,9 +43,9 @@ public class Constants {
     public static final String BUCKET_REGION = "us-east-2";
 
     // FILENAMES
-    public static final String FileNameNode = "newNode.txt";
-    public static final String FileNameBeacon = "tomorrow.txt";
+    public static final String FileNameNode = "testnode101.txt";
+    public static final String FileNameBeacon = "testbeacon101.txt";
 
     //  PHONE IDENTIFIER (CHANGE THIS WHEN DOWNLOADING APP ONTO PHONES)
-    public static final String identity = "0";
+    public static final String identity = "102";
 }
